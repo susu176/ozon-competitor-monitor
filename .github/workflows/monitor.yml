@@ -1,0 +1,30 @@
+name: Monitor foundation (mock only)
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 1 * * *' # 09:00 Asia/Shanghai; GitHub may delay execution
+  push:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: monitor-mock-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  mock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests -v
+      - name: Exercise snapshot and mock report pipeline
+        run: |
+          python -m ozon_monitor --fixture fixtures/day1.json --db /tmp/ozon-demo.sqlite3 --output /tmp/ozon-reports
+          python -m ozon_monitor --fixture fixtures/day2.json --db /tmp/ozon-demo.sqlite3 --output /tmp/ozon-reports
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mock-reports-${{ github.run_id }}
+          path: /tmp/ozon-reports
+          retention-days: 14
