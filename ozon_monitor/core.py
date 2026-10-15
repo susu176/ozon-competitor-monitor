@@ -100,8 +100,9 @@ def analyze(current: Collection, history: list[dict]) -> dict:
     comparable = [h for h in history if h['complete'] and not h.get('error')
                   and h['source'] == current.source and h['scope'] == current.scope]
     previous = comparable[-1] if comparable else None
-    known = {p['product_id'] for h in history for p in h['products']}
-    first_seen = [p for p in current.products if p.product_id not in known]
+    known = {p['product_id'] for h in history if not h.get('error') for p in h['products']}
+    first_seen = ([p for p in current.products if p.product_id not in known]
+                  if previous is not None and not current.error else [])
     old = {p['product_id']: p for p in previous['products']} if previous else {}
     changes = []
     if current.complete and not current.error:
@@ -118,7 +119,11 @@ def analyze(current: Collection, history: list[dict]) -> dict:
         category = ' / '.join(c or '未知' for c in p.categories)
         groups[category] = groups.get(category, 0) + 1
     return {'baseline': previous is None, 'previous_day': previous['day'] if previous else None,
-            'first_seen': first_seen, 'price_changes': changes, 'category_counts': groups}
+            'first_seen': first_seen, 'price_changes': changes, 'category_counts': groups,
+            'category_level_counts': [
+                {name: sum(1 for p in first_seen if ' / '.join(c or '未知' for c in p.categories[:level]) == name)
+                 for name in {' / '.join(c or '未知' for c in p.categories[:level]) for p in first_seen}}
+                for level in (1, 2, 3)]}
 
 
 def render(current: Collection, delta: dict) -> str:
@@ -131,7 +136,8 @@ def render(current: Collection, delta: dict) -> str:
     if current.error:
         lines.append(f'采集异常：{current.error}')
     if delta['baseline']:
-        lines.append('首次建立可比基线；本次商品不计作当天上新。')
+        lines.append('首次建立可比基线；本次商品不计作当天上新。' if current.complete and not current.error
+                     else '尚无完整可比基线；本次不建立基准、不报告商品变化。')
     else:
         lines.append(f'对比基线：{delta["previous_day"]}（可能不是昨日）')
     lines.extend(['', f'## 首次发现：{len(delta["first_seen"])}'])
@@ -144,7 +150,9 @@ def render(current: Collection, delta: dict) -> str:
     for change in delta['price_changes']:
         lines.append(f'- {change["product_id"]}：{change["before"]} → {change["after"]} {change["currency"]}')
     lines.extend(['', '## 首次发现商品的类目分布（不代表真实集中上新）'])
-    lines.extend(f'- {name}：{count}' for name, count in sorted(delta['category_counts'].items()))
+    for level, counts in enumerate(delta['category_level_counts'], 1):
+        lines.append(f'### {level} 级类目（保留父级路径）')
+        lines.extend(f'- {name}：{count}' for name, count in sorted(counts.items()))
     if not current.complete:
         lines.append('采集不完整：首次发现与类目数量仅为本次观测下限，暂停价格比较。')
     return '\n'.join(lines) + '\n'

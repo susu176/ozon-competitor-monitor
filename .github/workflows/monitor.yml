@@ -1,17 +1,20 @@
 name: Monitor foundation (mock only)
 on:
   workflow_dispatch:
+    inputs:
+      bootstrap:
+        description: 'First run only: allow creating missing mock data branch'
+        type: boolean
+        default: false
   schedule:
     - cron: '0 1 * * *' # 09:00 Asia/Shanghai; GitHub may delay execution
   push:
+    branches-ignore: [monitor-data-mock]
   pull_request:
 permissions:
   contents: read
-concurrency:
-  group: monitor-mock-${{ github.ref }}
-  cancel-in-progress: false
 jobs:
-  mock:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,12 +22,37 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m unittest discover -s tests -v
-      - name: Exercise snapshot and mock report pipeline
+  daily-mock:
+    needs: test
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: write
+    concurrency:
+      group: monitor-data-mock-writer
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore history (missing history is fatal unless explicitly initialized)
+        env:
+          BOOTSTRAP: ${{ inputs.bootstrap == true && 'true' || 'false' }}
         run: |
-          python -m ozon_monitor --fixture fixtures/day1.json --db /tmp/ozon-demo.sqlite3 --output /tmp/ozon-reports
-          python -m ozon_monitor --fixture fixtures/day2.json --db /tmp/ozon-demo.sqlite3 --output /tmp/ozon-reports
+          if [ "$BOOTSTRAP" = true ]; then
+            python -m ozon_monitor.state restore --directory /tmp/ozon-state --bootstrap
+          else
+            python -m ozon_monitor.state restore --directory /tmp/ozon-state
+          fi
+      - name: Generate today's mock snapshot and simulated message
+        run: |
+          python -m ozon_monitor.daily_mock
+          python -m ozon_monitor --fixture /tmp/ozon-today-mock.json --db /tmp/ozon-state/snapshots.sqlite3 --output /tmp/ozon-state/reports
+      - name: Commit persistent history (push rejection fails run)
+        run: python -m ozon_monitor.state publish --directory /tmp/ozon-state
       - uses: actions/upload-artifact@v4
         with:
           name: mock-reports-${{ github.run_id }}
-          path: /tmp/ozon-reports
+          path: /tmp/ozon-state/reports
           retention-days: 14
