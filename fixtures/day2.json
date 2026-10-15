@@ -1,0 +1,1 @@
+{"store_id":"demo-store","day":"2026-10-15","complete":true,"source":"fixture-v1","scope":"模拟公开售价 RUB，配送地区未指定","products":[{"product_id":"demo-1","title":"模拟收纳盒","price":"90.00","currency":"RUB","categories":["模拟家居","收纳","收纳盒"]},{"product_id":"demo-2","title":"模拟新发现商品","price":"200","currency":"RUB","categories":[null,null,null]}]}
