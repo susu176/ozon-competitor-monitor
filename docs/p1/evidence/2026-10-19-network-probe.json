@@ -1,0 +1,76 @@
+{
+  "phase": "P1",
+  "observed_at_utc": "2026-10-19T06:47:51Z",
+  "environment": "current managed cloud executor; not GitHub Actions",
+  "request": {
+    "method": "GET",
+    "url": "https://www.ozon.ru/robots.txt",
+    "purpose": "Check public crawling policy before requesting seller listings",
+    "timeout_seconds": 25,
+    "max_body_bytes": 1048576,
+    "proxy": "inherited session proxy",
+    "tls_verification": true
+  },
+  "result": {
+    "curl_error_code": 56,
+    "proxy_connect_status": 403,
+    "origin_http_status": null,
+    "reached_origin": false,
+    "message": "CONNECT tunnel failed, response 403",
+    "robots_policy": "unknown",
+    "redirect_chain": null,
+    "diagnosis": "Environment egress restriction; not evidence of an Ozon-origin refusal"
+  },
+  "network_configuration": {
+    "observed_custom_allowed_hosts": [],
+    "requested_additions": [
+      "www.ozon.ru",
+      "ozon.ru"
+    ],
+    "draft_save_status": "saved",
+    "requires_publish": true,
+    "runtime_applied": false
+  },
+  "stores": [
+    {
+      "user_supplied_name": "Barista LTD RU",
+      "input_url": "https://www.ozon.ru/seller/barista-ltd-ru/",
+      "user_supplied_age_years_approx": 2,
+      "age_verified": false,
+      "store_request_status": "not_attempted_due_to_shared_host_network_block",
+      "verified_final_url": null,
+      "stable_seller_id": null,
+      "product_total": null,
+      "product_count_retrieved": 0,
+      "product_fields_verified": [],
+      "pagination_verified": false,
+      "completeness_verified": false,
+      "category_levels": [
+        null,
+        null,
+        null
+      ],
+      "repeat_daily_collection_verified": false
+    },
+    {
+      "user_supplied_name": "DOMTOY",
+      "input_url": "https://www.ozon.ru/seller/domtoy/",
+      "user_supplied_age_years_approx": 5,
+      "age_verified": false,
+      "store_request_status": "not_attempted_due_to_shared_host_network_block",
+      "verified_final_url": null,
+      "stable_seller_id": null,
+      "product_total": null,
+      "product_count_retrieved": 0,
+      "product_fields_verified": [],
+      "pagination_verified": false,
+      "completeness_verified": false,
+      "category_levels": [
+        null,
+        null,
+        null
+      ],
+      "repeat_daily_collection_verified": false
+    }
+  ]
+}
