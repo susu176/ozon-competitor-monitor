@@ -1,0 +1,29 @@
+{
+  "note": "模拟商品表，不是 Ozon 实采。",
+  "products": [
+    {
+      "product_id": "sample-pass",
+      "title": "模拟收纳盒",
+      "price": "399.00",
+      "currency": "RUB",
+      "product_url": "https://example.com/sample-pass",
+      "monthly_sales": 40
+    },
+    {
+      "product_id": "sample-expensive",
+      "title": "模拟高价商品",
+      "price": "9000.00",
+      "currency": "RUB",
+      "product_url": "https://example.com/sample-expensive",
+      "monthly_sales": 80
+    },
+    {
+      "product_id": "sample-unknown-sales",
+      "title": "模拟销量未知",
+      "price": "200.00",
+      "currency": "RUB",
+      "product_url": "https://example.com/sample-unknown",
+      "monthly_sales": null
+    }
+  ]
+}

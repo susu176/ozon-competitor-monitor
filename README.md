@@ -37,6 +37,16 @@ SQLite 与日报保存在独立 `monitor-data-mock` 分支，每次恢复到新�
 
 同日相同的完整快照重复执行幂等；同日另一份完整快照内容不同仍拒绝覆盖。失败后的完整成功可以写入，因为失败记录不在 `snapshots`。当前快照和飞书模拟 JSON 为文件生成，不是实际消息发送去重保证。
 
+## 选品过审
+
+图里的「每天 9 点到 21 点、每两小时一次」记在程序里。你把商品表交给它，它按价格和月销量挑出过审商品。它不会自己打开 Ozon，也不会把商品自动上架。
+
+```bash
+python -m ozon_monitor.selection --input fixtures/selection-sample.json --seen data/selection-seen.json --output reports/selection.md
+```
+
+`fixtures/selection-sample.json` 是模拟表。月销量空着的商品不能过审。第一次过审的商品会被记住，下次同一件不会再报成新过审。规则在 `config/selection-rules.json`。这个命令没有加到定时任务里。
+
 ## P1 准备（尚未开始真实采集）
 
 已记录卖家 `5652967`：名称地址 `https://ozon.ru/s/mir-poleznyh-veshchey-5652967`，ID 地址 `https://ozon.ru/s/5652967`。2026-11-08 12:08 与 12:18 UTC 两次请求名称地址，都得到 nginx 307，`Location` 为同一路径加 `__rr=1`。第二次没有使用登录态。未跟随跳转，未保存 Cookie，也未请求 ID 地址。页面没有商品字段。robots 与条款此前也未读到正文。证据见 [P1 准备记录](docs/P1_PUBLIC_PREP.md)。
