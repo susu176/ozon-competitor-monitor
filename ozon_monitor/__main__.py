@@ -6,7 +6,7 @@ from .core import FixtureCollector, SnapshotStore, analyze, render
 
 
 def main():
-    parser = argparse.ArgumentParser(description='仅支持显式模拟数据；不执行真实采集或推送')
+    parser = argparse.ArgumentParser(description='仅支持显式模拟数据；不执行真实采集或推送。每日就绪检查见 ozon_monitor.daily')
     parser.add_argument('--fixture', required=True, type=Path)
     parser.add_argument('--db', type=Path, default=Path('data/snapshots.sqlite3'))
     parser.add_argument('--output', type=Path, default=Path('reports'))

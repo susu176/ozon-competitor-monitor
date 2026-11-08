@@ -1,0 +1,7 @@
+{
+  "timezone": "Asia/Shanghai",
+  "origin": "https://www.ozon.ru",
+  "user_agent": "ozon-competitor-monitor/0.1 (public read; stops on block; no browser impersonation)",
+  "shops": [],
+  "note": "shops 必须由使用者提供具体公开店铺 URL。空数组表示尚未提供，程序不会编造 URL，也不会请求店铺页。"
+}
