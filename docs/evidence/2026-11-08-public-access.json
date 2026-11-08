@@ -1,0 +1,85 @@
+{
+  "description": "2026-11-08 的公开读取记录。店铺名称地址两次都返回挑战跳转，第二次没有使用登录态。这些响应不是字段实测，也不是允许抓取的依据。",
+  "requests": [
+    {
+      "requested_url": "https://www.ozon.ru/robots.txt",
+      "started_at": "2026-11-08T11:50:35.435110+00:00",
+      "user_agent": "ozon-competitor-monitor/0.1 (one-shot public rules check; no browser impersonation)",
+      "client": "urllib.request",
+      "client_followed_redirects": true,
+      "status": 307,
+      "final_url": "https://www.ozon.ru/robots.txt?__rr=9",
+      "headers": {
+        "server": "nginx",
+        "content-type": "text/html",
+        "location": "https://www.ozon.ru/robots.txt?__rr=1"
+      },
+      "bytes_read": 164,
+      "sha256": "8f03491247cbfa8a2e60e0f7ec62d63b5070659f60383a1c81abeb2b20221be3",
+      "body_excerpt": "<html>\r\n<head><title>307 Temporary Redirect</title></head>\r\n<body>\r\n<center><h1>307 Temporary Redirect</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n",
+      "outcome": "redirect_challenge",
+      "note": "stdlib 客户端跟随了临时跳转，直到 robots.txt?__rr=9 仍返回 307，Location 指向 robots.txt?__rr=1。正文是 nginx 的跳转页，不是 robots 规则。此后未再请求 www.ozon.ru。"
+    },
+    {
+      "requested_url": "https://docs.ozon.ru/legal/terms-of-use/site/",
+      "started_at": "2026-11-08T11:51:21.203708+00:00",
+      "user_agent": "ozon-competitor-monitor/0.1 (one-shot public terms check; no browser impersonation)",
+      "client": "urllib.request",
+      "redirects_followed": 0,
+      "outcome": "timeout",
+      "error": "URLError",
+      "detail": "<urlopen error _ssl.c:983: The handshake operation timed out>",
+      "note": "未取得状态码、响应头和正文，未重试。不能据此摘录条款或判断允许自动化访问。"
+    },
+    {
+      "requested_url": "https://ozon.ru/s/mir-poleznyh-veshchey-5652967",
+      "started_at": "2026-11-08T12:08:41.634514+00:00",
+      "user_agent": "ozon-competitor-monitor/0.1 (public read; stops on block; no browser impersonation)",
+      "client": "ozon_monitor.access.fetch_once",
+      "redirects_followed": false,
+      "status": 307,
+      "final_url": "https://ozon.ru/s/mir-poleznyh-veshchey-5652967",
+      "headers": {
+        "content-type": "text/html",
+        "content-length": "164",
+        "date": "Sun, 08 Nov 2026 12:08:42 GMT",
+        "server": "nginx",
+        "location": "https://ozon.ru/s/mir-poleznyh-veshchey-5652967?__rr=1",
+        "cache-control": "no-store"
+      },
+      "set_cookie_present": true,
+      "bytes_read": 164,
+      "truncated": false,
+      "sha256": "8f03491247cbfa8a2e60e0f7ec62d63b5070659f60383a1c81abeb2b20221be3",
+      "body_excerpt": "<html>\r\n<head><title>307 Temporary Redirect</title></head>\r\n<body>\r\n<center><h1>307 Temporary Redirect</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n",
+      "outcome": "redirect_challenge",
+      "parsed_products": null,
+      "note": "使用者同时提供了 https://ozon.ru/s/5652967 。名称地址返回 307 且 Location 含 __rr=1，未跟随，未保存 Set-Cookie，也未再请求 ID 地址。正文与此前 robots 跳转页相同，没有商品字段。"
+    },
+    {
+      "requested_url": "https://ozon.ru/s/mir-poleznyh-veshchey-5652967",
+      "started_at": "2026-11-08T12:18:45.436692+00:00",
+      "user_agent": "ozon-competitor-monitor/0.1 (public read; stops on block; no browser impersonation)",
+      "client": "ozon_monitor.access.fetch_once",
+      "redirects_followed": false,
+      "status": 307,
+      "final_url": "https://ozon.ru/s/mir-poleznyh-veshchey-5652967",
+      "headers": {
+        "content-type": "text/html",
+        "content-length": "164",
+        "date": "Sun, 08 Nov 2026 12:18:45 GMT",
+        "server": "nginx",
+        "location": "https://ozon.ru/s/mir-poleznyh-veshchey-5652967?__rr=1",
+        "cache-control": "no-store"
+      },
+      "set_cookie_present": true,
+      "bytes_read": 164,
+      "truncated": false,
+      "sha256": "8f03491247cbfa8a2e60e0f7ec62d63b5070659f60383a1c81abeb2b20221be3",
+      "body_excerpt": "<html>\r\n<head><title>307 Temporary Redirect</title></head>\r\n<body>\r\n<center><h1>307 Temporary Redirect</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n",
+      "outcome": "redirect_challenge",
+      "parsed_products": null,
+      "note": "应要求再试一次。没有使用登录态、Cookie 或令牌。结果仍是 307 __rr 跳转，未跟随，未保存 Set-Cookie，未请求 ID 地址。"
+    }
+  ]
+}

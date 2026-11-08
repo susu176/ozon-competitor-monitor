@@ -1,1 +1,1 @@
-"""Public-data monitoring primitives. No live Ozon collector is enabled."""
+"""Public-data monitoring primitives. The live shop parser is not enabled."""

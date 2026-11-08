@@ -1,0 +1,13 @@
+{
+  "timezone": "Asia/Shanghai",
+  "origin": "https://www.ozon.ru",
+  "user_agent": "ozon-competitor-monitor/0.1 (public read; stops on block; no browser impersonation)",
+  "shops": [
+    {
+      "store_id": "5652967",
+      "url": "https://ozon.ru/s/mir-poleznyh-veshchey-5652967",
+      "sort": "newest"
+    }
+  ],
+  "note": "使用者提供同一卖家的 https://ozon.ru/s/5652967 与 https://ozon.ru/s/mir-poleznyh-veshchey-5652967。2026-11-08T12:08:41Z 只请求了名称地址，返回 307 __rr 跳转后停止，未请求 ID 地址。sort 只是目标，尚未在页面上看到最新排序。"
+}

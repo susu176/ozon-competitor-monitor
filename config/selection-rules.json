@@ -1,0 +1,7 @@
+{
+  "currency": "RUB",
+  "min_price": "100.00",
+  "max_price": "5000.00",
+  "min_monthly_sales": 30,
+  "note": "这些门槛是选品规则，不是从 Ozon 页面读到的。月销量未知就不能过审。"
+}
