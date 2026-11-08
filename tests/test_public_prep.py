@@ -49,7 +49,8 @@ def _at(hour, minute=0):
 class EvidenceTests(unittest.TestCase):
     def test_recorded_requests_do_not_grant_shop_access(self):
         records = load_evidence_records(EVIDENCE)
-        robots, terms = records
+        self.assertEqual(len(records), 3)
+        robots, terms, shop = records
         self.assertEqual(robots['requested_url'], 'https://www.ozon.ru/robots.txt')
         self.assertEqual(robots['status'], 307)
         self.assertIn('__rr=1', robots['headers']['location'])
@@ -69,6 +70,17 @@ class EvidenceTests(unittest.TestCase):
         observed = datetime.fromisoformat(robots['started_at'])
         self.assertIsNotNone(recent_block(records, 'www.ozon.ru', observed + timedelta(hours=1)))
         self.assertIsNone(recent_block(records, 'www.ozon.ru', observed + timedelta(hours=25)))
+        self.assertEqual(shop['requested_url'], 'https://ozon.ru/s/mir-poleznyh-veshchey-5652967')
+        self.assertEqual(shop['status'], 307)
+        self.assertEqual(shop['headers']['location'], 'https://ozon.ru/s/mir-poleznyh-veshchey-5652967?__rr=1')
+        self.assertEqual(shop['outcome'], 'redirect_challenge')
+        self.assertFalse(shop['redirects_followed'])
+        self.assertTrue(shop['set_cookie_present'])
+        self.assertIsNone(shop['parsed_products'])
+        self.assertEqual(hashlib.sha256(shop['body_excerpt'].encode()).hexdigest(), shop['sha256'])
+        self.assertNotIn('product_id', shop['body_excerpt'])
+        shop_time = datetime.fromisoformat(shop['started_at'])
+        self.assertIsNotNone(recent_block(records, 'ozon.ru', shop_time + timedelta(minutes=5)))
 
 
 class SyntheticRobotsTests(unittest.TestCase):
@@ -173,14 +185,19 @@ class ProbeBehaviorTests(unittest.TestCase):
 
 
 class ConfigAndReadinessTests(unittest.TestCase):
-    def test_committed_config_has_no_shops_and_collector_cannot_parse(self):
+    def test_configured_shop_is_recorded_but_collector_cannot_parse(self):
         config = load_config(Path('config/shops.json'))
-        self.assertEqual(config.shops, ())
+        self.assertEqual(len(config.shops), 1)
+        self.assertEqual(config.shops[0].store_id, '5652967')
+        self.assertEqual(config.shops[0].url, 'https://ozon.ru/s/mir-poleznyh-veshchey-5652967')
+        self.assertEqual(config.shops[0].sort, 'newest')
         self.assertEqual(config.timezone, 'Asia/Shanghai')
         self.assertEqual(SUPPORTED_PARSERS, frozenset())
         readiness = assess_readiness(config, load_evidence_records(EVIDENCE))
         self.assertFalse(readiness.ready)
-        self.assertTrue(any('未提供店铺 URL' in reason for reason in readiness.reasons))
+        self.assertTrue(any('5652967' in reason for reason in readiness.reasons))
+        self.assertTrue(any('解析器' in reason for reason in readiness.reasons))
+        self.assertFalse(any('未提供店铺 URL' in reason for reason in readiness.reasons))
         with self.assertRaises(RuntimeError):
             PublicShopCollector(readiness).collect()
 
@@ -353,16 +370,24 @@ class SafetyContractTests(unittest.TestCase):
 
 
 class DailyReadinessTests(unittest.TestCase):
-    def test_waiting_for_urls_writes_nothing(self):
+    def test_configured_shop_still_writes_nothing(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            with contextlib.redirect_stdout(io.StringIO()):
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
                 code = daily_main(['--config', 'config/shops.json', '--evidence', str(EVIDENCE)])
-            self.assertEqual(code, 0)
+            self.assertEqual(code, 2)
+            self.assertIn('5652967', output.getvalue())
+            self.assertIn('未写入快照', output.getvalue())
             self.assertFalse((root / 'snapshots.sqlite3').exists())
             self.assertFalse(Path('data/snapshots.sqlite3').exists())
-        config = load_config(Path('config/shops.json'))
-        self.assertEqual(config.origin, 'https://www.ozon.ru')
+            empty = root / 'empty.json'
+            empty.write_text(json.dumps({
+                'timezone': 'Asia/Shanghai', 'origin': 'https://www.ozon.ru',
+                'user_agent': USER_AGENT, 'shops': [],
+            }), encoding='utf-8')
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(daily_main(['--config', str(empty), '--evidence', str(EVIDENCE)]), 0)
         self.assertEqual(report_day(datetime(2026, 11, 8, 1, tzinfo=ZoneInfo('Asia/Shanghai'))), '2026-11-08')
 
 
