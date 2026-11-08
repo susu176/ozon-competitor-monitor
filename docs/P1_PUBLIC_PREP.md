@@ -19,11 +19,12 @@ P0 模拟版与仓库现状一致，真实 Collector 仍然不存在：
 
 ## 真实请求
 
-共三次读取。识别用的 User-Agent 为 `ozon-competitor-monitor/0.1 (one-shot public rules check; no browser impersonation)`。没有保存 Cookie 或令牌，没有浏览器伪装、代理或重试。
+共四次读取。识别用的 User-Agent 为 `ozon-competitor-monitor/0.1 (one-shot public rules check; no browser impersonation)`。没有保存 Cookie 或令牌，没有浏览器伪装或代理。第 4 次是应要求对店铺名称地址做的一次复查。
 
 1. `2026-11-08T11:50:35.435110+00:00`，`GET https://www.ozon.ru/robots.txt`。当时使用的客户端会跟随临时跳转，最终停在 `https://www.ozon.ru/robots.txt?__rr=9`：HTTP 307，`Content-Type: text/html`，`Server: nginx`，`Location: https://www.ozon.ru/robots.txt?__rr=1`。正文 164 字节，是 nginx 的 “307 Temporary Redirect” 页面，SHA-256 `8f03491247cbfa8a2e60e0f7ec62d63b5070659f60383a1c81abeb2b20221be3`。这不是 robots 规则，不能用来判断店铺页、排序或分页是否允许。按停止规则，之后没有再请求 `www.ozon.ru`。
 2. `2026-11-08T11:51:21.203708+00:00`，`GET https://docs.ozon.ru/legal/terms-of-use/site/`，不跟随跳转。TLS 握手超时，没有状态码、响应头或正文。没有重试，因此没有条款摘录，也不能判断条款是否允许自动化访问。
 3. `2026-11-08T12:08:41.634514+00:00`，`GET https://ozon.ru/s/mir-poleznyh-veshchey-5652967`，不跟随跳转。HTTP 307，`Content-Type: text/html`，`Server: nginx`，`Cache-Control: no-store`，`Location: https://ozon.ru/s/mir-poleznyh-veshchey-5652967?__rr=1`。响应带有 `Set-Cookie`，值未保存。正文 164 字节，SHA-256 与第 1 次的 nginx 跳转页相同：`8f03491247cbfa8a2e60e0f7ec62d63b5070659f60383a1c81abeb2b20221be3`。没有商品 ID、标题、价格、图片或类目。因此未再请求 `https://ozon.ru/s/5652967`。
+4. `2026-11-08T12:18:45.436692+00:00`，应要求对同一名称地址再读一次。这次环境里没有可用的登录态，也没有接收或附带 Cookie、令牌。结果仍是 HTTP 307，`Location` 仍是 `?__rr=1`，正文哈希相同。未跟随，未保存 `Set-Cookie`，未请求 ID 地址。
 
 原始记录在 [evidence/2026-11-08-public-access.json](evidence/2026-11-08-public-access.json)。检索结果里还有第三方对 robots、条款和 Seller API 的转述；那些不是这次对官方地址的成功读取，没有写进解析器，也不当作许可。Seller API 需要卖家凭证，本次不收集凭证，也不假设它能读取竞店。
 
@@ -73,7 +74,7 @@ git diff --check
 
 ## 尚未完成
 
-1. 卖家 `5652967` 的名称地址被 307 `__rr` 跳转拦住。冷却结束后只能再做一次不跟随跳转的复核；若结果相同，继续停止，不保存 Cookie，不伪装浏览器。
+1. 卖家 `5652967` 的名称地址在 12:08 和 12:18 UTC 两次都是 307 `__rr` 跳转。浏览器里的登录不会传到这次读取。这里不接收账号、Cookie 或令牌。短时间内不再请求。
 2. `https://ozon.ru/s/5652967` 尚未请求。
 3. robots 和条款仍没有可读正文。
 4. 商品字段、最新排序、分页终点、价格口径和稳定性都还没有页面证据。

@@ -49,8 +49,8 @@ def _at(hour, minute=0):
 class EvidenceTests(unittest.TestCase):
     def test_recorded_requests_do_not_grant_shop_access(self):
         records = load_evidence_records(EVIDENCE)
-        self.assertEqual(len(records), 3)
-        robots, terms, shop = records
+        self.assertEqual(len(records), 4)
+        robots, terms, shop, retry = records
         self.assertEqual(robots['requested_url'], 'https://www.ozon.ru/robots.txt')
         self.assertEqual(robots['status'], 307)
         self.assertIn('__rr=1', robots['headers']['location'])
@@ -81,6 +81,13 @@ class EvidenceTests(unittest.TestCase):
         self.assertNotIn('product_id', shop['body_excerpt'])
         shop_time = datetime.fromisoformat(shop['started_at'])
         self.assertIsNotNone(recent_block(records, 'ozon.ru', shop_time + timedelta(minutes=5)))
+        self.assertEqual(retry['started_at'], '2026-11-08T12:18:45.436692+00:00')
+        self.assertEqual(retry['outcome'], 'redirect_challenge')
+        self.assertFalse(retry['redirects_followed'])
+        self.assertTrue(retry['set_cookie_present'])
+        self.assertIsNone(retry['parsed_products'])
+        self.assertEqual(retry['sha256'], shop['sha256'])
+        self.assertNotIn('cookie=', json.dumps(retry).lower())
 
 
 class SyntheticRobotsTests(unittest.TestCase):

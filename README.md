@@ -39,7 +39,7 @@ SQLite 与日报保存在独立 `monitor-data-mock` 分支，每次恢复到新�
 
 ## P1 准备（尚未开始真实采集）
 
-已记录卖家 `5652967`：名称地址 `https://ozon.ru/s/mir-poleznyh-veshchey-5652967`，ID 地址 `https://ozon.ru/s/5652967`。2026-11-08 12:08 UTC 只请求了名称地址，得到 nginx 307，`Location` 为同一路径加 `__rr=1`。未跟随跳转，未保存 Cookie，也未再请求 ID 地址。页面没有商品字段。robots 与条款此前也未读到正文。证据见 [P1 准备记录](docs/P1_PUBLIC_PREP.md)。
+已记录卖家 `5652967`：名称地址 `https://ozon.ru/s/mir-poleznyh-veshchey-5652967`，ID 地址 `https://ozon.ru/s/5652967`。2026-11-08 12:08 与 12:18 UTC 两次请求名称地址，都得到 nginx 307，`Location` 为同一路径加 `__rr=1`。第二次没有使用登录态。未跟随跳转，未保存 Cookie，也未请求 ID 地址。页面没有商品字段。robots 与条款此前也未读到正文。证据见 [P1 准备记录](docs/P1_PUBLIC_PREP.md)。
 
 ```bash
 python -m ozon_monitor.daily --config config/shops.json
